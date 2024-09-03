@@ -144,7 +144,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * The constructor to used for creating connection with all parameter
-	 * 
+	 *
 	 * @param domainName            URL Domain name either IPAddress and Port or API
 	 *                              URL
 	 * @param contentType           Message Content Type for both Read/Write
@@ -174,13 +174,13 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @param customeHeader         custom header of the api call
 	 */
 	public ConnectionHandler(final String domainName, final String contentType, final Integer methodType,
-			final boolean protocolType, final String aliasName, final String keyStorePassword,
-			final String keyStoreFileName, final String appName, final String versionNo, final String services,
-			final Integer responseTimeOut, final Integer connectionTimeOut, final String username,
-			final String password, final String logId, final String logToken, final String tokenServices,
-			final Integer authType, final Long lastTokenGenerateTime, final Integer expiryTime,
-			final String customeHeader, final BaseTransactionBlockingQueue queue, final Object retObject,
-			final boolean skipCertVerify) {
+							 final boolean protocolType, final String aliasName, final String keyStorePassword,
+							 final String keyStoreFileName, final String appName, final String versionNo, final String services,
+							 final Integer responseTimeOut, final Integer connectionTimeOut, final String username,
+							 final String password, final String logId, final String logToken, final String tokenServices,
+							 final Integer authType, final Long lastTokenGenerateTime, final Integer expiryTime,
+							 final String customeHeader, final BaseTransactionBlockingQueue queue, final Object retObject,
+							 final boolean skipCertVerify) {
 		super();
 		if (aliasName == null)
 			disableSslVerification();
@@ -226,13 +226,13 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @param skipCertVerify
 	 */
 	public ConnectionHandler(final String domainName, final String contentType, final Integer methodType,
-			final boolean protocolType, final String aliasName, final String keyStorePassword,
-			final String keyStoreFileName, final String appName, final String versionNo, final String services,
-			final Integer responseTimeOut, final Integer connectionTimeOut, final String username,
-			final String password, final String additionalUrlParams, final String logId, final String logToken,
-			final String tokenServices, final Integer authType, final Long lastTokenGenerateTime,
-			final Integer expiryTime, final String customeHeader, final BaseTransactionBlockingQueue queue,
-			final Object retObject, final boolean skipCertVerify) {
+							 final boolean protocolType, final String aliasName, final String keyStorePassword,
+							 final String keyStoreFileName, final String appName, final String versionNo, final String services,
+							 final Integer responseTimeOut, final Integer connectionTimeOut, final String username,
+							 final String password, final String additionalUrlParams, final String logId, final String logToken,
+							 final String tokenServices, final Integer authType, final Long lastTokenGenerateTime,
+							 final Integer expiryTime, final String customeHeader, final BaseTransactionBlockingQueue queue,
+							 final Object retObject, final boolean skipCertVerify) {
 		super();
 		if (aliasName == null)
 			disableSslVerification();
@@ -254,9 +254,9 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	/**
 	 * This method will create new connection of URL or API with respected
 	 * domainName
-	 * 
+	 *
 	 * @param appData
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private URLConnection startConnect(final String logToken, final ApplicationData appData) throws IOException {
@@ -286,7 +286,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	/**
 	 * Construct url by replacing if app variables present for dynamic url
 	 * constructions
-	 * 
+	 *
 	 * @param urlPath
 	 * @param paramAppData
 	 * @return
@@ -331,13 +331,13 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * This method will load common default parameter for http connection.
-	 * 
+	 *
 	 * @param tokenMessageBytes
 	 * @param additionalTokenFields
 	 * @throws IOException
 	 */
 	private HttpURLConnection initiateConnection(final URLConnection urlConnection, final String tokenMessageBytes,
-			final String additionalTokenFields) throws IOException {
+												 final String additionalTokenFields) throws IOException {
 		final HttpURLConnection httpUrlConnection = (HttpURLConnection) urlConnection;
 		httpUrlConnection.setRequestMethod(methodType.getMethodType());
 
@@ -362,13 +362,13 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * This method will load common default parameter for https connection.
-	 * 
+	 *
 	 * @param tokenMessageBytes
 	 * @param additionalTokenFields
 	 * @throws IOException
 	 */
 	private HttpsURLConnection initiateSecureConnection(final URLConnection urlConnection, final String tokenMessageBytes,
-			final String additionalTokenFields) throws IOException {
+														final String additionalTokenFields) throws IOException {
 		final HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) urlConnection;
 		httpsUrlConnection.setRequestMethod(methodType.getMethodType());
 		httpsUrlConnection.setReadTimeout(responseTimeOut);
@@ -395,7 +395,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	@SuppressWarnings("unchecked")
 	private void setHttpsHeader(final HttpsURLConnection httpConnection, final String tokenMessageBytes, final String msgId, final String logToken,
-			final String additionalTokenFields) throws IOException {
+								final String additionalTokenFields) throws IOException {
 		String token = null;
 		if (this.connectionBean.getDomainName() != null) {
 			token = (String) authTokenData.get(this.connectionBean.getDomainName());
@@ -473,7 +473,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	@SuppressWarnings("unchecked")
 	private void setHttpHeader(final HttpURLConnection httpConnection, final String tokenMessageBytes, final String msgId,
-			final String logToken, final String additionalTokenFields) throws IOException {
+							   final String logToken, final String additionalTokenFields) throws IOException {
 		String token = null;
 		if (this.connectionBean.getDomainName() != null) {
 			token = (String) authTokenData.get(this.connectionBean.getDomainName());
@@ -546,7 +546,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 				default: // No authentication
 					break;
 			}
-		}	
+		}
 	}
 
 	/**
@@ -558,7 +558,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @throws SocketClosedException
 	 */
 	public byte[] doRequest(final String logToken, final byte[] dataBytes, final String token, final ApplicationData appData,
-			final Object additionalFields) throws InvalidBufferStream, IOException, SocketClosedException {
+							final Object additionalFields) throws InvalidBufferStream, IOException, SocketClosedException {
 		final URLConnection connection = startConnect(logToken, appData);
 		logger.info(this.connectionBean.getLogId() + " URL for Connecting " + connection.getURL().toString(), CLASSNAME,
 				logToken);
@@ -582,7 +582,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @throws SocketClosedException
 	 */
 	public byte[] doRequest(final byte[] dataBytes, final String token, final ApplicationData appData,
-			final Object additionalFields, final Object additionalTokenFields)
+							final Object additionalFields, final Object additionalTokenFields)
 			throws InvalidBufferStream, IOException, SocketClosedException {
 		final URLConnection connection = startConnect(this.connectionBean.getLogToken(), appData);
 		logger.info(this.connectionBean.getLogId() + " URL for Connecting " + connection.getURL().toString(), CLASSNAME,
@@ -638,7 +638,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	private byte[] doHttpsRequest(final String logToken, final byte[] dataBytes, final String token,
-			final HttpsURLConnection httpsUrlConnection)
+								  final HttpsURLConnection httpsUrlConnection)
 			throws InvalidBufferStream, IOException, SocketClosedException {
 		if (token != null && token.length() > 0)
 			httpsUrlConnection.setRequestProperty(HTTPConstants.AUTHORIZATION.value(), token);
@@ -677,7 +677,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * Push or hit the given url with the http insecured protocol
-	 * 
+	 *
 	 * @param messageBytes message to be send
 	 * @param fullUrl      full HTTP Url
 	 * @param method       type of URL to be hit
@@ -689,7 +689,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @throws InvalidBufferStream   invalid buffers received from the externals
 	 */
 	public byte[] pushRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-			final Map<String, String> headers)
+							  final Map<String, String> headers)
 			throws MalformedURLException, IOException, SocketClosedException, InvalidBufferStream {
 		byte[] retBytes;
 		if (fullUrl.startsWith("https"))
@@ -704,7 +704,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	private BufferedOutputStream loadHeader(final HttpURLConnection connection, final Map<String, String> headers,
-			final MethodType method) throws IOException {
+											final MethodType method) throws IOException {
 		connection.setRequestProperty(HTTPConstants.CONTENT_TYPE.value(), HTTPConstants.DEFUALT_CHARSET.value());
 		connection.setReadTimeout(responseTimeOut);
 		connection.setConnectTimeout(connectionTimeOut);
@@ -719,7 +719,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @deprecated since 1.0.5, will be removed after 1.0.7. Desc - key location
 	 *             removed and managed applicaiton <br/>
 	 *             Push or hit the given url with the secured protocol
-	 * 
+	 *
 	 * @param messageBytes message to be send
 	 * @param fullUrl      full HTTP Url
 	 * @param method       type of URL to be hit
@@ -735,7 +735,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 */
 	@Deprecated(since = "", forRemoval = false)
 	public byte[] pushSecuredRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-			final Map<String, String> headers, final String keyAlias, final String keySecret, final String keyStorePath)
+									 final Map<String, String> headers, final String keyAlias, final String keySecret, final String keyStorePath)
 			throws MalformedURLException, IOException, SocketClosedException, InvalidBufferStream {
 		byte[] retBytes;
 		if (fullUrl.startsWith(HTTP_CONST))
@@ -756,7 +756,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * Push or hit the given url with the secured protocol
-	 * 
+	 *
 	 * @param messageBytes    message to be send
 	 * @param fullUrl         full HTTP Url
 	 * @param method          type of URL to be hit
@@ -770,7 +770,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @throws InvalidBufferStream   invalid buffers received from the externals
 	 */
 	public byte[] pushSecuredRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-			final Map<String, String> headers, final String keyAlias, final boolean sslVerification)
+									 final Map<String, String> headers, final String keyAlias, final boolean sslVerification)
 			throws IOException, SocketClosedException, InvalidBufferStream {
 		byte[] retBytes;
 		if (fullUrl.startsWith(HTTP_CONST))
@@ -787,7 +787,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * Push or hit the given url with the http insecured protocol
-	 * 
+	 *
 	 * @param messageBytes    message to be send
 	 * @param fullUrl         full HTTP Url
 	 * @param method          type of URL to be hit
@@ -800,7 +800,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @throws InvalidBufferStream   invalid buffers received from the externals
 	 */
 	public byte[] pushRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-			final Integer responseTimeOut, final Map<String, String> headers)
+							  final Integer responseTimeOut, final Map<String, String> headers)
 			throws IOException, SocketClosedException, InvalidBufferStream {
 		byte[] retBytes;
 		if (fullUrl.startsWith("https"))
@@ -816,7 +816,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	private BufferedOutputStream loadHeader(final HttpURLConnection connection, final Map<String, String> headers,
-			final Integer responseTimeOut, final MethodType method) throws IOException {
+											final Integer responseTimeOut, final MethodType method) throws IOException {
 		connection.setRequestProperty(HTTPConstants.CONTENT_TYPE.value(), HTTPConstants.DEFUALT_CHARSET.value());
 		connection.setReadTimeout(responseTimeOut * 1000);
 		connection.setConnectTimeout(connection_TimeOut);
@@ -828,7 +828,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	private BufferedOutputStream loadCustomHeader(final HttpURLConnection connection, final Map<String, String> headers,
-			final Integer responseTimeOut, final MethodType method) throws IOException {
+												  final Integer responseTimeOut, final MethodType method) throws IOException {
 		connection.setReadTimeout(responseTimeOut * 1000);
 		connection.setConnectTimeout(connection_TimeOut);
 		connection.setDoOutput(true);
@@ -842,7 +842,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @deprecated since 1.0.5, will be removed after 1.0.7. Desc - key location
 	 *             removed and managed applicaiton <br/>
 	 *             Push or hit the given url with the secured protocol
-	 * 
+	 *
 	 * @param messageBytes    message to be send
 	 * @param fullUrl         full HTTP Url
 	 * @param method          type of URL to be hit
@@ -859,8 +859,8 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 */
 	@Deprecated(since = "", forRemoval = false)
 	public byte[] pushSecuredRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-			final Map<String, String> headers, final String keyAlias, final String keySecret, final String keyStorePath,
-			final Integer responseTimeOut)
+									 final Map<String, String> headers, final String keyAlias, final String keySecret, final String keyStorePath,
+									 final Integer responseTimeOut)
 			throws IOException, SocketClosedException, InvalidBufferStream {
 		byte[] retBytes;
 		if (fullUrl.startsWith(HTTP_CONST))
@@ -880,9 +880,9 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * Push or hit the given url with the secured protocol
-	 * 
+	 *
 	 * @param messageBytes    message to be send
 	 * @param fullUrl         full HTTP Url
 	 * @param method          type of URL to be hit
@@ -897,8 +897,8 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @throws InvalidBufferStream   invalid buffers received from the externals
 	 */
 	public byte[] pushSecuredRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-			final Map<String, String> headers, final String keyAlias, final boolean sslVerfication,
-			final Integer responseTimeOut)
+									 final Map<String, String> headers, final String keyAlias, final boolean sslVerfication,
+									 final Integer responseTimeOut)
 			throws IOException, SocketClosedException, InvalidBufferStream {
 		byte[] retBytes;
 		if (fullUrl.startsWith(HTTP_CONST))
@@ -914,7 +914,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param messageBytes
 	 * @param fullUrl
 	 * @param method
@@ -930,8 +930,8 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * @throws InvalidBufferStream
 	 */
 	public byte[] pushSecuredRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-			final Map<String, String> headers, final String keyAlias, final boolean sslVerfication,
-			final Integer responseTimeOut, final boolean isCustomHeader)
+									 final Map<String, String> headers, final String keyAlias, final boolean sslVerfication,
+									 final Integer responseTimeOut, final boolean isCustomHeader)
 			throws MalformedURLException, IOException, SocketClosedException, InvalidBufferStream {
 		byte[] retBytes;
 		if (fullUrl.startsWith(HTTP_CONST))
@@ -950,7 +950,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	 * <p>
 	 * Write the response message to internal Queue
 	 * </p>
-	 * 
+	 *
 	 * @param responseBytes
 	 */
 	private void responseQueueProcess(final byte[] responseBytes) {
@@ -962,7 +962,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @returnskipCertVerify
 	 */
 	public boolean isSkipCertVerify() {
@@ -971,7 +971,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * tokenServicesBean
-	 * 
+	 *
 	 * @return
 	 */
 	public TokenBean getTokenServicesBean() {
@@ -980,7 +980,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	/**
 	 * setTokenServicesBean
-	 * 
+	 *
 	 * @param tokenServicesBean
 	 */
 	public void setTokenServicesBean(final TokenBean tokenServicesBean) {
@@ -988,7 +988,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param cusHeader
 	 * @return
 	 */
@@ -997,7 +997,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public ConnectionBean getConnectionBean() {
@@ -1006,7 +1006,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 
 	@SuppressWarnings({ "PMD.UseShortArrayInitializer", "PMD.ReturnEmptyArrayRatherThanNull",
 			"PMD.UncommentedEmptyMethodBody", "PMD.MissingOverride", "PMD.EmptyCatchBlock" })
-	private static void disableSslVerification() {
+	static void disableSslVerification() {
 		try {
 			// Create a trust manager that does not validate certificate chains
 			final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
@@ -1062,7 +1062,7 @@ public class ConnectionHandler extends HttpConnectionHandler {
 	public void setStatusCodeRequired(final boolean isStatusCodeRequired) {
 		this.isStatusCodeRequired = isStatusCodeRequired;
 	}
-	
+
 	/**
 	 * @return the protocolType
 	 */

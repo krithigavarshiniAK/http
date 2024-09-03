@@ -141,8 +141,7 @@ class ConnectionHandlerTest {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	@Disabled
 	@Test
 	public void processConsctructURlusingAppdata() {

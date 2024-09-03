@@ -12,17 +12,17 @@ import ogs.switchon.common.exceptions.InvalidBufferStream;
 import ogs.switchon.common.exceptions.SocketClosedException;
 
 /**
- * 
+ *
  * @author Gowtham Aug 20, 2019
  *         ======================================================================================
  *         This Module contains Proprietary Information of OGS Paylab Pvt ltd.,
  *         and should be treated as Confidential. SwitchOn� is a registered
  *         trademarks of OGS Paylab Pvt Ltd.
- * 
+ *
  *         Copyright (C)2008-2011 OGS Paylab pvt ltd. All Rights Reserved
- * 
+ *
  *         This Is Unpublished Proprietary Source Code Of OGS Paylab Pvt Ltd.
- * 
+ *
  *         The copyright notice above does not evidence any actual or intended
  *         publication of such Source code.
  *         ======================================================================================
@@ -40,9 +40,9 @@ public interface J_CommunicationHandler extends Serializable {
 	/**
 	 * Create the HTTP/HTTPS URL connection with specified domain name. This method
 	 * only create url connection and return back.
-	 * 
+	 *
 	 * Parameter :
-	 * 
+	 *
 	 * @param domainName   It is entire url configure property, like it may be
 	 *                     combination of IPAddress and Port or normal url look like
 	 *                     a ogspay.com
@@ -56,7 +56,7 @@ public interface J_CommunicationHandler extends Serializable {
 
 	/**
 	 * Method will use both write and read functionality. Parameter:
-	 * 
+	 *
 	 * @param outputStream   output stream to write a message to connection.
 	 * @param httpConnection To be used to read message from URL connection.
 	 * @param dataBytes      message to outgoing message datas.
@@ -66,6 +66,6 @@ public interface J_CommunicationHandler extends Serializable {
 	 * @throws SocketTimeoutException If response timed out
 	 */
 	byte[] doRequest(BufferedOutputStream outputStream, HttpURLConnection httpConnection, byte[] dataBytes,
-			String logId, String logToken) throws SocketClosedException, InvalidBufferStream, SocketTimeoutException;
+					 String logId, String logToken) throws SocketClosedException, InvalidBufferStream, SocketTimeoutException;
 
 }

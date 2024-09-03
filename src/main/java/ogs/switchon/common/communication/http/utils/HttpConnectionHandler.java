@@ -41,17 +41,17 @@ import ogs.switchon.common.shared.CommonAppConstants;
 import ogs.switchon.common.utilities.ByteUtils;
 
 /**
- * 
+ *
  * @author Gowtham Aug 20, 2019
  *         ======================================================================================
  *         This Module contains Proprietary Information of OGS Paylab Pvt ltd.,
  *         and should be treated as Confidential. SwitchOn� is a registered
  *         trademarks of OGS Paylab Pvt Ltd.
- * 
+ *
  *         Copyright (C)2008-2011 OGS Paylab pvt ltd. All Rights Reserved
- * 
+ *
  *         This Is Unpublished Proprietary Source Code Of OGS Paylab Pvt Ltd.
- * 
+ *
  *         The copyright notice above does not evidence any actual or intended
  *         publication of such Source code.
  *         ======================================================================================
@@ -86,7 +86,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 * Response Status Code
 	 */
 	private static final String STATUS_CODE = "http_status_code";
-	
+
 	/**
 	 * Default response node key
 	 */
@@ -98,7 +98,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 
 	@Override
 	public URLConnection openConnection(final String domainName, final ProtocolType protocolType,
-			final String servicePath) throws IOException {
+										final String servicePath) throws IOException {
 		Objects.requireNonNull(domainName, "URL Domain name is NULL");
 		final URL url = new URL(
 				protocolType.getProtocol() + domainName + HTTPConstants.SEPARATOR.value() + servicePath);
@@ -107,7 +107,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 
 	@Override
 	public byte[] doRequest(final BufferedOutputStream outputStream, final HttpURLConnection httpConnection,
-			final byte[] msgDataBytes, final String logId, final String logToken)
+							final byte[] msgDataBytes, final String logId, final String logToken)
 			throws InvalidBufferStream, SocketClosedException {
 		byte[] dataBytes = null;
 		final ObjectMapper objectMapper = new ObjectMapper();
@@ -139,11 +139,11 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 * @throws JsonMappingException
 	 */
 	private ObjectNode responseByteConvert(final String logId, final String logToken, byte[] dataBytes,
-			final ObjectMapper objectMapper) throws JsonProcessingException {
+										   final ObjectMapper objectMapper) throws JsonProcessingException {
 		logger.info(logId, "Read  bytes length:" + dataBytes.length, CLASSNAME, logToken);
 		if (CommonAppConstants.isRawMsgDisplay && Logger.isDebug())
 			logger.debug("Received response :" + ByteUtils.copyBytesAsString(dataBytes, 0), CLASSNAME, logToken);
-		
+
 		// Convert the JSON string to a JsonNode (generic node type)
 		final JsonNode parentNode = objectMapper.readTree(new String(dataBytes));
 
@@ -158,10 +158,10 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 		}
 		return defaultNode;
 	}
-	
+
 	public byte[] doRequest(final BufferedOutputStream outputStream, final HttpURLConnection httpConnection,
-			final byte[] msgDataBytes, final String logId, final String logToken, final boolean hasRequiredStatusCode)
-					throws SocketClosedException {
+							final byte[] msgDataBytes, final String logId, final String logToken, final boolean hasRequiredStatusCode)
+			throws SocketClosedException {
 		byte[] dataBytes = null;
 		final ObjectMapper objectMapper = new ObjectMapper();
 		try {
@@ -175,7 +175,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 					defaultNode.put(STATUS_CODE, httpConnection.getResponseCode());
 					dataBytes = objectMapper.writeValueAsBytes(defaultNode);
 				}
-					
+
 			} else
 				throw new SocketClosedException("No response from end point::" + httpConnection.getResponseCode());
 		} catch (IOException e) {
@@ -196,33 +196,34 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 * @throws JsonProcessingException
 	 */
 	private byte[] writeAndRead(final BufferedOutputStream outputStream, final HttpURLConnection httpConnection,
-			final byte[] msgDataBytes, final String logId, final String logToken, final ObjectMapper objectMapper)
+								final byte[] msgDataBytes, final String logId, final String logToken, final ObjectMapper objectMapper)
 			throws IOException {
 		byte[] dataBytes;
-		if (!httpConnection.getRequestMethod().equals(MethodType.GET.getMethodType())) {
-			Objects.requireNonNull(outputStream, "Output Stream is NULL");
-			outputStream.write(msgDataBytes);
-			outputStream.flush();
-			outputStream.close();
-			logger.info(logId, "Written bytes length:" + msgDataBytes.length, CLASSNAME, logToken);
-			if (CommonAppConstants.isRawMsgDisplay && Logger.isDebug())
-				logger.debug("written message :" + ByteUtils.copyBytesAsString(msgDataBytes, 0), CLASSNAME, logToken);
-		}
-		/* did not get any response body from the end point need to check */
-		if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_ACCEPTED) {
-			dataBytes = objectMapper.writeValueAsBytes(objectMapper.createObjectNode());
-		} else if (httpConnection.getResponseCode() < HttpURLConnection.HTTP_BAD_REQUEST) {
-			dataBytes = readBytes(httpConnection.getInputStream());
-		}else {
-			/* error from server */
-			dataBytes = readBytes(httpConnection.getErrorStream());
-		}
-		return dataBytes;
+			if (!httpConnection.getRequestMethod().equals(MethodType.GET.getMethodType())) {
+				Objects.requireNonNull(outputStream, "Output Stream is NULL");
+				outputStream.write(msgDataBytes);
+				outputStream.flush();
+				outputStream.close();
+				logger.info(logId, "Written bytes length:" + msgDataBytes.length, CLASSNAME, logToken);
+				if (CommonAppConstants.isRawMsgDisplay && Logger.isDebug())
+					logger.debug("written message :" + ByteUtils.copyBytesAsString(msgDataBytes, 0), CLASSNAME, logToken);
+			}
+			/* did not get any response body from the end point need to check */
+			if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_ACCEPTED) {
+				dataBytes = objectMapper.writeValueAsBytes(objectMapper.createObjectNode());
+			} else if (httpConnection.getResponseCode() < HttpURLConnection.HTTP_BAD_REQUEST) {
+				dataBytes = readBytes(httpConnection.getInputStream());
+			} else {
+				/* error from server */
+				dataBytes = readBytes(httpConnection.getErrorStream());
+			}
+			return dataBytes;
+
 	}
 
 	/**
-	 * Decrecated method for do request
-	 * 
+	 * Deprecated method for do request
+	 *
 	 * @param outputStream
 	 * @param httpConnection
 	 * @param msgDataBytes
@@ -232,7 +233,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 */
 	@Deprecated(since = "", forRemoval = false)
 	public byte[] doRequest(final BufferedOutputStream outputStream, final HttpURLConnection httpConnection,
-			final byte[] msgDataBytes) throws SocketClosedException, InvalidBufferStream {
+							final byte[] msgDataBytes) throws SocketClosedException, InvalidBufferStream {
 		byte[] dataBytes = null;
 		Objects.requireNonNull(outputStream, "Output Stream is NULL");
 		try {
@@ -255,9 +256,9 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 
 	/**
 	 * This method will do a receive the message from the particular URL connection.
-	 * 
+	 *
 	 * Parameter:
-	 * 
+	 *
 	 * @param inputStream - To be used to read message from URL connection.
 	 * @return Byte values of received message.
 	 * @throws IOException in case of read/socket failure
@@ -284,11 +285,11 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * <p>
 	 * Generate token
 	 * </p>
-	 * 
+	 *
 	 * @param protocolType    HTTP/HTTPS
 	 * @param domainName      host name
 	 * @param applicationName app name
@@ -301,8 +302,8 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 */
 	@SuppressWarnings("unchecked")
 	public String generateToken(final ProtocolType protocolType, final String baseUrlDomainName,
-			final String baseUrlApplicationName, final Object tokenServices, final String authUsername,
-			final String authPassword, final String baseUrlversionNo, final MethodType baseUrlmethodType)
+								final String baseUrlApplicationName, final Object tokenServices, final String authUsername,
+								final String authPassword, final String baseUrlversionNo, final MethodType baseUrlmethodType)
 			throws TokenGenerationFailure {
 		String token = null;
 		ObjectMapper mapper = null;
@@ -358,11 +359,11 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * <p>
 	 * Generate token
 	 * </p>
-	 * 
+	 *
 	 * @param protocolType          HTTP/HTTPS
 	 * @param domainName            host name
 	 * @param applicationName       app name
@@ -381,10 +382,10 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 */
 	@SuppressWarnings("unchecked")
 	public String generateOauthToken(final ProtocolType protocolType, final String baseUrlDomainName,
-			final String baseUrlApplicationName, final Object tokenServices, final String authUsername,
-			final String authPassword, final String baseUrlversionNo, final MethodType baseUrlmethodType,
-			final String tokenMessageBytes, final String msgId, final String logToken, final String keyAlias,
-			final boolean skipCertVerify) throws TokenGenerationFailure {
+									 final String baseUrlApplicationName, final Object tokenServices, final String authUsername,
+									 final String authPassword, final String baseUrlversionNo, final MethodType baseUrlmethodType,
+									 final String tokenMessageBytes, final String msgId, final String logToken, final String keyAlias,
+									 final boolean skipCertVerify) throws TokenGenerationFailure {
 		String token = null;
 		final URLConnection connection;
 		MethodType methodType = null;
@@ -434,7 +435,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 				reqMessageBytes = tokenMessageBytes.getBytes();
 				methodType = MethodType.POST;
 			}
-			
+
 			if (connection instanceof HttpsURLConnection) {
 				final SslParamsBean httpsOperationParamsBean = new SslParamsBean(keyAlias, skipCertVerify,
 						protocolType);
@@ -448,13 +449,13 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 		}
 		return token;
 	}
-	
+
 	/**
 	 * <p>
 	 * Performs the operations based on Https Connection
 	 * </p>
-	 * 
-	 * 
+	 *
+	 *
 	 * @param connection
 	 * @param msgId
 	 * @param logToken
@@ -467,7 +468,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 * @throws IOException
 	 */
 	private String doHttpsOperation(final URLConnection connection, final String msgId, final String logToken,
-			final SslParamsBean sslParamsBean, final MethodType methodType, final byte[] reqMessageBytes)
+									final SslParamsBean sslParamsBean, final MethodType methodType, final byte[] reqMessageBytes)
 			throws IOException {
 		final HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) connection;
 		if (sslParamsBean.getKeyAlias() != null && StringUtils.hasText(sslParamsBean.getKeyAlias())
@@ -520,7 +521,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 * <p>
 	 * Performs the operations based on Http Connection
 	 * </p>
-	 * 
+	 *
 	 * @param connection
 	 * @param msgId
 	 * @param logToken
@@ -530,7 +531,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 * @throws IOException
 	 */
 	private String doHttpOperation(final URLConnection connection, final String msgId, final String logToken,
-			final MethodType methodType, final byte[] reqMessageBytes) throws IOException {
+								   final MethodType methodType, final byte[] reqMessageBytes) throws IOException {
 		String contentType = HTTPConstants.URLENCODED.value();
 		final HttpURLConnection httpUrlConnection = (HttpURLConnection) connection;
 		if (methodType != null) {
@@ -572,22 +573,20 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 		}
 		return token;
 	}
-	
-		
 
 	/**
 	 * <p>
 	 * Authorization token response message parsing based on the incoming response.
 	 * Whether the Json message with signature or without signature.
 	 * </p>
-	 * 
+	 *
 	 * @param tokenResponse - Token message response received
 	 * @param msgId         - Logger unique identifier
 	 * @param logToken      - Logger access token
 	 * @return access token
 	 */
 	@SuppressWarnings("unchecked")
-	private static String getTokenValue(final String tokenResponse, final String msgId, final String logToken) {
+	static String getTokenValue(final String tokenResponse, final String msgId, final String logToken) {
 		final ObjectMapper objectMapper = new ObjectMapper();
 		String authToken = null;
 		try {
