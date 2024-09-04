@@ -1,22 +1,18 @@
 package ogs.switchon.common.communication.http.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import ogs.switchon.common.communication.http.J_ClientHandler;
-import ogs.switchon.common.communication.http.J_CommunicationHandler;
 import ogs.switchon.common.communication.http.SslParamsBean;
 import ogs.switchon.common.communication.http.TokenBean;
 import ogs.switchon.common.communication.http.constants.HTTPConstants;
 import ogs.switchon.common.communication.http.constants.MethodType;
 import ogs.switchon.common.communication.http.constants.ProtocolType;
 import ogs.switchon.common.communication.http.exception.TokenGenerationFailure;
-import ogs.switchon.common.exceptions.InvalidBufferStream;
 import ogs.switchon.common.exceptions.SocketClosedException;
 import ogs.switchon.common.logger.Logger;
 import ogs.switchon.common.modules.security.SslHelper;
@@ -24,14 +20,16 @@ import ogs.switchon.common.shared.CommonAppConstants;
 import ogs.switchon.common.utilities.ByteUtils;
 import org.springframework.util.StringUtils;
 
-import javax.management.ObjectName;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -40,16 +38,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.google.common.io.ByteStreams.readBytes;
-import static ogs.switchon.common.communication.http.utils.HttpConnectionHandler.getTokenValue;
-
 public abstract class HttpClientHandler implements J_ClientHandler {
-    private final HttpClient httpClient;
-
+    private HttpClient httpClient = null;
     private HttpRequest baseRequest;
     private static final String CLASSNAME = "HCHD";
     protected static Logger logger = Logger.getLogger();
-
     private static final String STATUS_CODE = "http_status_code";
     /**
      * Maximum buffer size
@@ -63,7 +56,6 @@ public abstract class HttpClientHandler implements J_ClientHandler {
      * ERROR_MSG
      */
     private static final String ERROR_MSG = "Socket Connection closed or IO Exception.";
-
     public HttpClientHandler(final String domainName, final ProtocolType protocolType, final String servicePath) {
         this.httpClient = HttpClient.newHttpClient();
 
@@ -76,9 +68,13 @@ public abstract class HttpClientHandler implements J_ClientHandler {
                 .build();
     }
 
+    public HttpClientHandler() {
+
+    }
+
     @Override
-    public HttpResponse<String> OpenConnection(final String domainName, final ProtocolType protocolType, final String servicePath) throws IOException, InterruptedException {
-        return httpClient.send(baseRequest, HttpResponse.BodyHandlers.ofString());
+    public HttpRequest OpenConnection(final String domainName, final ProtocolType protocolType, final String servicePath) throws IOException, InterruptedException {
+        return httpClient.send(baseRequest, HttpResponse.BodyHandlers.ofString()).request();
     }
 
     @Override
@@ -107,7 +103,8 @@ public abstract class HttpClientHandler implements J_ClientHandler {
         return dataBytes;
     }
 
-    public byte[] doRequest(final BufferedOutputStream outputStream, final HttpRequest baseRequest, final byte[] msgDataBytes, final String logId
+    public byte[] doRequest(final BufferedOutputStream outputStream, final HttpRequest baseRequest,
+                            final byte[] msgDataBytes, final String logId,
                             final String logToken, final boolean hasRequiredStatusCode)
             throws SocketClosedException, IOException, InterruptedException {
         byte[] dataBytes = null;
@@ -137,7 +134,6 @@ public abstract class HttpClientHandler implements J_ClientHandler {
 
     /**
      * @param outputStream
-     * @param httpRequest
      * @param msgDataBytes
      * @param logId
      * @param logToken
@@ -247,13 +243,8 @@ public abstract class HttpClientHandler implements J_ClientHandler {
      * @param tokenServices             token services
      * @param authUsername              user name for auth
      * @param authPassword              password for auth
-     * @param additionalTokenParams
-     * @param additionalTokenParams
      * @param baseUrlversionNo
      * @param baseUrlmethodType
-     * @param tokenMessageBytes
-     * @param logToken
-     * @param msgId
      * @return token
      * @throws TokenGenerationFailure if failed
      */
@@ -337,11 +328,9 @@ public abstract class HttpClientHandler implements J_ClientHandler {
      * @param baseUrlDomainName         host name
      * @param baseUrlApplicationName    app name
      * @param tokenServices             token services
-     * @param username                  user name for auth
-     * @param password                  password for auth
-     * @param additionalTokenParams
-     * @param additionalTokenParams
-     * @param versionNo
+     * @param authUsername                  username for auth
+     * @param authPassword                  password for auth
+     * @param baseUrlversionNo
      * @param baseUrlmethodType
      * @param tokenMessageBytes
      * @param logToken
@@ -356,7 +345,7 @@ public abstract class HttpClientHandler implements J_ClientHandler {
                                      final String tokenMessageBytes, final String msgId, final String logToken, final String keyAlias,
                                      final boolean skipCertVerify) throws TokenGenerationFailure{
         String token = null;
-        final HttpResponse<String> httpResponse;
+        final HttpRequest httpRequest;
         MethodType methodType = null;
         Map<String, String> tokenParams = new HashMap<>();
         final StringBuilder postData = new StringBuilder();
@@ -372,7 +361,7 @@ public abstract class HttpClientHandler implements J_ClientHandler {
                                 ? tokenServicesBean.getVersionNo() + HTTPConstants.SEPARATOR.value()
                                 : "");
                 urlCompleteData.append(tokenServicesBean.getServicePath());
-                httpResponse = OpenConnection(tokenServicesBean.getDomainName(), protocolType,
+                httpRequest = OpenConnection(tokenServicesBean.getDomainName(), protocolType,
                         urlCompleteData.toString());
                 try {
                     if (tokenServicesBean.getAdditionalTokenParams() != null)
@@ -383,7 +372,7 @@ public abstract class HttpClientHandler implements J_ClientHandler {
                 }
                 methodType = MethodType.getMethodType(tokenServicesBean.getMethodType());
             } else {
-                httpResponse = OpenConnection(baseUrlDomainName, protocolType,
+                httpRequest = OpenConnection(baseUrlDomainName, protocolType,
                         baseUrlApplicationName + (String) tokenServices);
             }
 
@@ -404,14 +393,8 @@ public abstract class HttpClientHandler implements J_ClientHandler {
                 methodType = MethodType.POST;
             }
 
-            if(httpResponse instanceof HttpsURLConnection){
-                final SslParamsBean httpsOperationParamsBean = new SslParamsBean(keyAlias, skipCertVerify,
-                        protocolType);
-                token = doHttpsOperation(baseRequest, msgId, logToken, httpsOperationParamsBean, methodType,
-                        reqMessageBytes);
-            } else if (httpResponse instanceof HttpURLConnection) {
                 token = doHttpOperation(baseRequest, msgId, logToken, methodType, reqMessageBytes);
-            }
+
 
             } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -425,12 +408,10 @@ public abstract class HttpClientHandler implements J_ClientHandler {
      * </p>
      *
      *
-     * @param httpRequest
+     * @param baseRequest
      * @param msgId
      * @param logToken
-     * @param keyAlias
-     * @param skipCertVerify
-     * @param protocolType
+     * @param sslParamsBean
      * @param methodType
      * @param reqMessageBytes
      * @return
@@ -489,7 +470,7 @@ public abstract class HttpClientHandler implements J_ClientHandler {
      * Performs the operations based on Http Connection
      * </p>
      *
-     * @param httpRequest
+     * @param baseRequest
      * @param msgId
      * @param logToken
      * @param methodType

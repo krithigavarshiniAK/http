@@ -618,7 +618,6 @@ public class ConnectionHandler extends HttpConnectionHandler {
 			responseData = doRequest(null, httpUrlConnection, dataBytes, connectionBean.getLogId(),
 					logToken, isStatusCodeRequired);
 		} else {
-
 			responseData = doRequest(new BufferedOutputStream(httpUrlConnection.getOutputStream()), httpUrlConnection,
 					dataBytes, connectionBean.getLogId(), logToken, isStatusCodeRequired);
 		}

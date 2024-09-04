@@ -28,7 +28,7 @@ public interface J_ClientHandler extends Serializable {
      * @throws IOException MalformedURL or invalid url connection exception
      */
 
-    HttpResponse<String> OpenConnection(String domainName, ProtocolType protocolType, String servicePath) throws IOException, InterruptedException;
+    HttpRequest OpenConnection(String domainName, ProtocolType protocolType, String servicePath) throws IOException, InterruptedException;
 
     /**
      * Method will use both write and read functionality. Parameter:
