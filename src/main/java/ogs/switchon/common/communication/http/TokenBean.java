@@ -55,8 +55,7 @@ public class TokenBean {
 	 * AdditionalTokenUrlParams
 	 */
 	private String additionalTokenUrlParams;
-	
-	
+
 	/**
 	 * @return url id
 	 */
@@ -64,7 +63,7 @@ public class TokenBean {
 		return urlId;
 	}
 	/**
-	 * @param set Url Id
+	 * @param urlId
 	 */
 	public void setUrlId(final Integer urlId) {
 		this.urlId = urlId;
@@ -88,7 +87,7 @@ public class TokenBean {
 		return appName;
 	}
 	/**
-	 * @param set appname
+	 * @param appName
 	 */
 	public void setAppName(final String appName) {
 		this.appName = appName;
@@ -178,7 +177,6 @@ public class TokenBean {
 	public void setAdditionalTokenParams(final String additionalTokenParams) {
 		this.additionalTokenParams = additionalTokenParams;
 	}
-
 	/**
 	 * @return additionalTokenUrlParams
 	 */

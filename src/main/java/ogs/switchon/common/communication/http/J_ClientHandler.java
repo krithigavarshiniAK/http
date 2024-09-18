@@ -27,20 +27,6 @@ public interface J_ClientHandler extends Serializable {
      * @return HttpClient creates connection from domain name.
      * @throws IOException MalformedURL or invalid url connection exception
      */
-
     HttpRequest OpenConnection(String domainName, ProtocolType protocolType, String servicePath) throws IOException, InterruptedException;
 
-    /**
-     * Method will use both write and read functionality. Parameter:
-     *
-     * @param outputStream   output stream to write a message to connection.
-     * @param httpRequest To be used to read message from httpclient connection.
-     * @param dataBytes      message to outgoing message datas.
-     * @return Byte values of received message.
-     * @throws SocketClosedException  Connection failure
-     * @throws InvalidBufferStream    Read write error, invalid packets
-     * @throws SocketTimeoutException If response timed out
-     */
-    byte[] doRequest(BufferedOutputStream outputStream, HttpRequest httpRequest, byte[] dataBytes,
-                     String logId, String logToken) throws SocketClosedException, InvalidBufferStream, IOException, InterruptedException;
 }

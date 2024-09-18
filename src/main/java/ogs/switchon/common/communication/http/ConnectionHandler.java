@@ -470,7 +470,6 @@ public class ConnectionHandler extends HttpConnectionHandler {
 		}
 	}
 
-
 	@SuppressWarnings("unchecked")
 	private void setHttpHeader(final HttpURLConnection httpConnection, final String tokenMessageBytes, final String msgId,
 							   final String logToken, final String additionalTokenFields) throws IOException {

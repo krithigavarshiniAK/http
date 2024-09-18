@@ -201,7 +201,6 @@ public class ConnectionBean implements Serializable {
 		return versionNo;
 	}
 
-	
 	/**
 	 * @return the servicePath
 	 */

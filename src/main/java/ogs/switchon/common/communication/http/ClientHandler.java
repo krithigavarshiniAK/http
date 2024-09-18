@@ -10,18 +10,11 @@ import ogs.switchon.common.exceptions.SocketClosedException;
 import ogs.switchon.common.logger.Logger;
 import ogs.switchon.common.modules.communication.BaseTransactionBlockingQueue;
 import ogs.switchon.common.modules.communication.MessageBean;
-import ogs.switchon.common.modules.security.SslHelper;
 import ogs.switchon.common.shared.ApplicationData;
 import ogs.switchon.common.shared.CommonAppConstants;
 import ogs.switchon.common.utilities.ApplicationUtils;
-import org.springframework.util.StringUtils;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLParameters;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -32,11 +25,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,30 +37,37 @@ public class ClientHandler extends HttpClientHandler {
      * Class name for the log
      */
     private static final String CLASSNAME = ApplicationUtils.formatClassName("URL");
+
     /**
      * HTTP/HTTPS Token cache hash map
      */
     public static ConcurrentMap<String, Object> authTokenData = new ConcurrentHashMap<>();
+
     /**
      * Connection properties bean
      */
     private final ConnectionBean connectionBean;
+
     /**
      * Token generated time
      */
     private Long tokenGenerateTime;
+
     /**
      * Token expiry period
      */
     private final int tokenExpirePeriod;
+
     /**
      * Auth type
      */
     private final int authType;
+
     /**
      * Character encoder
      */
     private final CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
+
     /**
      * HTTP Method type
      */
@@ -80,54 +77,80 @@ public class ClientHandler extends HttpClientHandler {
      * HTTP Protocol type
      */
     private transient ProtocolType protocolType;
+
     /**
      * Response time out in seconds
      */
     private final int responseTimeOut;
+
     /**
      * Connection time out in seconds
      */
     private final int connectionTimeOut;
+
     /**
      * Used in full url method
      */
     private static Integer connection_TimeOut = 10_000;
+
     /**
      * used in full url method
      */
 //	private static Integer response_TimeOut = 30_000;
+
     /**
      * Queue object
      */
     private final BaseTransactionBlockingQueue queue;
+
     /**
      * HTTP Constant
      */
     private static final String HTTP_CONST = "http:";
+
     /**
      * Return object
      */
     private final Object retObject;
+
     /**
      * Skip Certificate verification value
      */
     private final boolean skipCertVerify;
+
     /**
      * Token services bean
      */
     private TokenBean tokenServicesBean;
+
     /**
      * isStatusCodeRequired
      */
     private boolean isStatusCodeRequired = false;
+
     /**
      * Bearer token string appending
      */
     private static final String BEARER_TAG = "Bearer ";
+
     /**
      * ObjectMapper
      */
     private final static ObjectMapper OBJ_MAPPER = new ObjectMapper();
+
+    public ClientHandler(ConnectionBean connectionBean, int tokenExpirePeriod, int authType,
+                         MethodType methodType, int responseTimeOut, int connectionTimeOut,
+                         BaseTransactionBlockingQueue queue, Object retObject, boolean skipCertVerify) {
+        this.connectionBean = connectionBean;
+        this.tokenExpirePeriod = tokenExpirePeriod;
+        this.authType = authType;
+        this.methodType = methodType;
+        this.responseTimeOut = responseTimeOut;
+        this.connectionTimeOut = connectionTimeOut;
+        this.queue = queue;
+        this.retObject = retObject;
+        this.skipCertVerify = skipCertVerify;
+    }
 
     /**
      * The constructor to used for creating connection with all parameter
@@ -299,15 +322,10 @@ public class ClientHandler extends HttpClientHandler {
 
     private HttpRequest initiateConnection(final HttpRequest httpRequest, final String tokenMessageBytes,
                                                     final String additionalTokenFields) throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(connectionTimeOut))
-                .build();
-
         HttpRequest.Builder modifiedRequest = HttpRequest.newBuilder()
                 .uri(httpRequest.uri())
                 .timeout(Duration.ofMillis(responseTimeOut));
 
-        // Set the request method
         if (methodType != null) {
             modifiedRequest.method(methodType.getMethodType(), HttpRequest.BodyPublishers.noBody());
         } else {
@@ -326,35 +344,40 @@ public class ClientHandler extends HttpClientHandler {
         return modifiedRequest.build();
     }
 
-    private void setHttpHeader(final HttpRequest.Builder requestBuilder, final String tokenMessageBytes, final String msgId,
-                               final String logToken, final String additionalTokenFields) throws IOException {
+    public HttpRequest.Builder setHttpHeader(final HttpRequest.Builder requestBuilder, final String tokenMessageBytes, final String msgId,
+                              final String logToken, final String additionalTokenFields) throws IOException {
         String token = null;
+
+        // Check if domain name exists
         if (this.connectionBean.getDomainName() != null) {
             token = (String) authTokenData.get(this.connectionBean.getDomainName());
-            if (token != null)
+            if (token != null) {
                 tokenGenerateTime = (Long) authTokenData.get(token);
-            switch (authType) {
-                case 1: // Token authentication
-                    if (token == null || (System.currentTimeMillis() - tokenGenerateTime) > tokenExpirePeriod * 60 * 1000) {
-                        token = super.generateToken(protocolType, this.connectionBean.getDomainName(),
-                                this.connectionBean.getApplicationName(),
-                                tokenServicesBean != null ? tokenServicesBean
-                                        : this.connectionBean.getTokenServices() != null,
-                                this.connectionBean.getUsername(), this.connectionBean.getPassword(),
-                                this.connectionBean.getVersionNo(), this.methodType);
+            }
 
+            // Handling different auth types using switch-case
+            switch (authType) {
+                case 1:
+                    if (token == null || (System.currentTimeMillis() - tokenGenerateTime) > tokenExpirePeriod * 60 * 1000) {
+                        token = super.generateToken(
+                                protocolType,
+                                this.connectionBean.getDomainName(),
+                                this.connectionBean.getApplicationName(),
+                                tokenServicesBean != null ? tokenServicesBean : this.connectionBean.getTokenServices(),
+                                this.connectionBean.getUsername(),
+                                this.connectionBean.getPassword(),
+                                this.connectionBean.getVersionNo(),
+                                this.methodType);
                         authTokenData.put(this.connectionBean.getDomainName(), token);
                         this.tokenGenerateTime = System.currentTimeMillis();
-                        requestBuilder.header(HTTPConstants.AUTHORIZATION.value(), token);
-                    } else
-                        requestBuilder.header(HTTPConstants.AUTHORIZATION.value(), token);
+                    }
+                    requestBuilder.header(HTTPConstants.AUTHORIZATION.value(), token);
                     break;
                 case 2:
-                    requestBuilder.header((HTTPConstants.USERNAME.value()), this.connectionBean.getUsername())
+                    requestBuilder.header(HTTPConstants.USERNAME.value(), this.connectionBean.getUsername())
                             .header(HTTPConstants.PASSWORD.value(), this.connectionBean.getPassword());
-
                     break;
-                case 3: // Custom headers
+                case 3:
                     final Base64.Decoder decoder = Base64.getDecoder();
                     final ObjectMapper objectMapper = new ObjectMapper();
                     final String customHeader = new String(decoder.decode(this.connectionBean.getCustomeHeader()),
@@ -366,41 +389,53 @@ public class ClientHandler extends HttpClientHandler {
                     break;
                 case 4:
                     if (token == null || (System.currentTimeMillis() - tokenGenerateTime) > tokenExpirePeriod * 60 * 1000) {
-                        token = super.generateOauthToken(protocolType, this.connectionBean.getDomainName(),
-                                this.connectionBean.getApplicationName() != null
-                                        && this.connectionBean.getApplicationName().trim().length() > 0
-                                        ? this.connectionBean.getApplicationName() + HTTPConstants.SEPARATOR.value()
-                                        : "",
+                        token = super.generateOauthToken(
+                                protocolType,
+                                this.connectionBean.getDomainName(),
+                                this.connectionBean.getApplicationName(),
                                 tokenServicesBean != null ? tokenServicesBean : this.connectionBean.getTokenServices(),
-                                this.connectionBean.getUsername(), this.connectionBean.getPassword(),
-                                this.connectionBean.getVersionNo(), this.methodType, tokenMessageBytes, msgId, logToken,
-                                connectionBean.getAliasName(), skipCertVerify);
+                                this.connectionBean.getUsername(),
+                                this.connectionBean.getPassword(),
+                                this.connectionBean.getVersionNo(),
+                                this.methodType,
+                                tokenMessageBytes,
+                                msgId,
+                                logToken,
+                                this.connectionBean.getAliasName(),
+                                skipCertVerify);
 
                         authTokenData.put(this.connectionBean.getDomainName(), token);
                         this.tokenGenerateTime = System.currentTimeMillis();
                         authTokenData.put(token, tokenGenerateTime);
-                        requestBuilder.header(HTTPConstants.AUTHORIZATION.value(), BEARER_TAG + token);
-                    } else
-                        requestBuilder.header(HTTPConstants.AUTHORIZATION.value(), BEARER_TAG + token);
+                    }
+                    requestBuilder.header(HTTPConstants.AUTHORIZATION.value(), BEARER_TAG + token);
                     if (additionalTokenFields != null) {
                         logger.info(msgId + " AdditionalToken fields : " + additionalTokenFields, CLASSNAME, logToken);
                         HashMap<String, String> headersParams;
                         headersParams = (HashMap<String, String>) OBJ_MAPPER.readValue(additionalTokenFields, Map.class);
-                        headersParams.entrySet().stream()
-                                .forEach(entry -> requestBuilder.header(entry.getKey(), entry.getValue()));
+                        headersParams.forEach(requestBuilder::header);
                     }
-                    logger.info(msgId + " After token headers setted : ", CLASSNAME, logToken);
+                    logger.info(msgId + " After token headers set : ", CLASSNAME, logToken);
                     break;
-                case 5: // Original Basic authentication
+                case 5:
                     final String credentials = this.connectionBean.getUsername() + ":" + this.connectionBean.getPassword();
                     final String authValue = Base64.getEncoder().encodeToString(credentials.getBytes());
                     requestBuilder.header(HTTPConstants.AUTHORIZATION.value(), "Basic " + authValue);
                     break;
-                default: // No authentication
+                default:
                     break;
-
             }
         }
+
+        requestBuilder.header("Content-Type", "application/json")
+                .header("UserId", "user@paytabs");
+
+        if ("GET".equalsIgnoreCase(String.valueOf(this.methodType))) {
+            requestBuilder.GET();
+        } else {
+            requestBuilder.POST(HttpRequest.BodyPublishers.ofString(""));
+        }
+        return requestBuilder;
     }
 
     public byte[] doRequest(final String logToken, final byte[] dataBytes, final String token, final ApplicationData appData,
@@ -432,7 +467,6 @@ public class ClientHandler extends HttpClientHandler {
                 && !httpRequest.method().equalsIgnoreCase("GET")){
             throw new InvalidBufferStream("Unable to write in stream. Invalid Buffer size or buffer is NULL");
         }
-
         HttpRequest request = modifiedRequest.build();
 
         try{
@@ -453,48 +487,6 @@ public class ClientHandler extends HttpClientHandler {
             throw new RuntimeException(e);
         }
         return responseData;
-    }
-
-    public byte[] pushRequest(final byte[] messageBytes, final String fullUrl, final MethodType method,
-                              final Integer responseTimeOut, final Map<String, String> headers) throws SocketClosedException {
-        HttpClient.Builder clientBuilder = HttpClient.newBuilder();
-        if (responseTimeOut != null) {
-            clientBuilder.connectTimeout(Duration.ofSeconds(responseTimeOut));
-        }
-        HttpClient httpClient = clientBuilder.build();
-
-        HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder()
-                .uri(URI.create(fullUrl))
-                .method(method.getMethodType(), messageBytes == null || messageBytes.length == 0 ?
-                        HttpRequest.BodyPublishers.noBody() :
-                        HttpRequest.BodyPublishers.ofByteArray(messageBytes));
-
-        httpRequestBuilder = loadHeader(httpRequestBuilder, headers, responseTimeOut, method);
-
-        HttpRequest request = httpRequestBuilder.build();
-
-        try {
-            HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-
-            return response.body();
-
-        } catch (InterruptedException e) {
-            throw new SocketClosedException("Request interrupted", e);
-        } catch (IOException e) {
-            throw new SocketClosedException("I/O Error occurred", e);
-        }
-    }
-
-    private HttpRequest.Builder loadHeader(HttpRequest.Builder requestBuilder, final Map<String, String> headers,
-                                           final Integer responseTimeOut, final MethodType method){
-        requestBuilder.header(HTTPConstants.CONTENT_TYPE.value(), HTTPConstants.DEFUALT_CHARSET.value());
-        if (responseTimeOut != null) {
-            requestBuilder.timeout(Duration.ofSeconds(responseTimeOut));
-        }
-        if (headers != null) {
-            headers.forEach(requestBuilder::header);
-        }
-        return requestBuilder;
     }
 
     private void responseQueueProcess(final byte[] responseBytes) {

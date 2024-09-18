@@ -353,7 +353,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 				token = response.get("Token");
 			}
 		} catch (IOException ioe) {
-			throw new TokenGenerationFailure("Unble to genearate the token", ioe);
+			throw new TokenGenerationFailure("Unable to generate the token", ioe);
 		}
 		return token;
 	}
@@ -365,7 +365,7 @@ public abstract class HttpConnectionHandler implements J_CommunicationHandler {
 	 * </p>
 	 *
 	 * @param protocolType          HTTP/HTTPS
-	 * @param domainName            host name
+	 * @param baseUrlDomainName            host name
 	 * @param applicationName       app name
 	 * @param tokenServices         token services
 	 * @param username              user name for auth
