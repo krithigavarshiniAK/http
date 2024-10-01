@@ -1,7 +1,6 @@
 package ogs.switchon.common.communication.http;
 
 import ogs.switchon.common.communication.http.constants.ProtocolType;
-
 public class SslParamsBean {
 
 	/**
@@ -71,10 +70,4 @@ public class SslParamsBean {
 		return protocolType;
 	}
 
-	/**
-	 * @param protocolType the protocolType to set
-	 */
-	public void setProtocolType(ProtocolType protocolType) {
-		this.protocolType = protocolType;
-	}
 }
